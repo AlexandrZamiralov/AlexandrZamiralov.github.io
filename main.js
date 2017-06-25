@@ -531,3 +531,4 @@ window.onload = function () {
     };
 
     draw();
+};
