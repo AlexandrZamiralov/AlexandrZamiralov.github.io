@@ -79,6 +79,7 @@ window.onload = function () {
             btnNextStep.src = "imgs/next_black.png";
             btnWork.src = "imgs/pause_yellow.png";
             isPaused = false;
+            setTextToInfo("For more information lets try pause mode");
             nextStep(currentStep);
         } else {
             isPaused = true;
@@ -90,7 +91,7 @@ window.onload = function () {
     }, false);
 
     btnStop = document.getElementById("btn_stop");
-    btnStop.disabled = true;
+    btnStop.disabled = false;
     btnStop.src = "imgs/stop_black.png";
     btnStop.addEventListener("click", function (event) {
         if (btnStop.disabled) return;
@@ -101,17 +102,26 @@ window.onload = function () {
         isPaused = false;
         btnWork.disabled = false;
         btnWork.src = "imgs/start_green.png";
-        btnNextStep.disabled = true;
-        btnNextStep.src = "imgs/next_black.png";
         isFirstStart = true;
+        btnNextStep.disabled = false;
+        btnNextStep.src = "imgs/next_blue.png";
         clearAlgorithmInfo();
     }, false);
 
     btnNextStep = document.getElementById("btn_next_step");
-    btnNextStep.disabled = true;
-    btnNextStep.src = "imgs/next_black.png";
+    btnNextStep.disabled = false;
+    btnNextStep.src = "imgs/next_blue.png";
     btnNextStep.addEventListener("click", function (event) {
         if (btnNextStep.disabled) return;
+        if (isFirstStart) {
+            currentStep = startAlgorithm;
+            btnStop.disabled = false;
+            btnStop.src = "imgs/stop_red.png";
+            isStopped = false;
+            isFirstStart = false;
+        }
+        isPaused = true;
+        btnWork.src = "imgs/start_green.png";
         isSkipped = true;
         nextStep(currentStep);
     }, false);
@@ -401,8 +411,7 @@ window.onload = function () {
     /*
     Algorithm
     */
-    var STEP_TIME = Number(2),
-        nextStep,
+    var nextStep,
         nextTimer,
         currentStep,
         isFirstStart = true,
@@ -415,15 +424,17 @@ window.onload = function () {
         nextNode,
         index,
         nextIndex;
+    setSpeed = function () {return Number(document.getElementById("speed").value);}
 
-    nextStep = function (func,n) {
+
+    nextStep = function (func) {
         if(isSkipped){
             isSkipped = false;
             func();
             return;
         } else if(isPauseOrStop(func)) return;
 
-        nextTimer = setTimeout(func, STEP_TIME*n);
+        nextTimer = setTimeout(func, 1000/setSpeed());
     };
 
     isPauseOrStop = function (func) {
@@ -437,7 +448,7 @@ window.onload = function () {
 
     var startAlgorithm = function () {
         setTextToInfo("Find the downiest node and start gift wrapping");
-        nextStep(findFirstNodeStep,300);
+        nextStep(findFirstNodeStep);
     };
 
     var findFirstNodeStep = function () {
@@ -449,7 +460,7 @@ window.onload = function () {
         firstNode.setNodeColor(FIRST_NODE_COLOR);
         currentNode = firstNode;
         if (isPaused){setTextToInfo("Find next node");};
-        nextStep(findNextNodeStep,50);
+        nextStep(findNextNodeStep);
     };
 
     var findNextNodeStep = function () {
@@ -458,19 +469,19 @@ window.onload = function () {
         nextNode = getNode(index);
         nextIndex(index);
         if (isPaused){setTextToInfo("Take next node<br>Check this node with other nodes for rotation");};
-        nextStep(findMinNodeStep,50);
+        nextStep(findMinNodeStep);
     };
 
     var findMinNodeStep = function () {
         if(index === currentNode.id){
             setTextToInfo("For more information lets try pause mode");
-            nextStep(setNextNodeStep,10);
+            nextStep(setNextNodeStep);
             return;
         }
 
         currentNode.createExtraEdge(index);
         if (isPaused){setTextToInfo("Check rotation with this node");};
-        nextStep(checkRotateStep,50);
+        nextStep(checkRotateStep);
     };
 
     var checkRotateStep = function () {
@@ -490,7 +501,7 @@ window.onload = function () {
         draw();
 
         nextIndex(index);
-        nextStep(findMinNodeStep,10);
+        nextStep(findMinNodeStep);
     };
 
     var setNextNodeStep = function () {
@@ -498,10 +509,10 @@ window.onload = function () {
         currentNode.setNodeColor(CURRENT_NODE_COLOR);
         if(currentNode.id === firstNode.id){
             if (isPaused){setTextToInfo("The algorithm returned in first node");};
-            nextStep(endAlgorithm,10);
+            nextStep(endAlgorithm);
         }
         else {
-            nextStep(findNextNodeStep,10);
+            nextStep(findNextNodeStep);
             if (isPaused){setTextToInfo("Find next node");};
         }
     };
@@ -520,5 +531,3 @@ window.onload = function () {
     };
 
     draw();
-
-};
